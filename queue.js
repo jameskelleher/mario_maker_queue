@@ -120,12 +120,14 @@ class PriorityQueue {
             return 'queue is currently empty';
         }
 
-        if (typeof(num) !== 'number') {
-            return 'please enter a number';
-        }
-
         if (num == undefined) {
           num = 5;
+        }
+
+        num = parseInt(num);
+
+        if (Number.isNaN(num)) {
+          return `please enter a number, or leave blank for top ${num}`;
         }
 
         const maxPeek = 20;
