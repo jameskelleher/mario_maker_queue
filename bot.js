@@ -56,6 +56,10 @@ function onMessageHandler (target, context, msg, self) {
       return_msg = pq.user_position(context.username);
   } else if (commandName == '!mmq_clear' && isAdmin) {
       return_msg = pq.clear();
+  } else if (commandName === '!mmq_open' && isAdmin) {
+      return_msg = pq.open();
+  } else if (commandName === '!mmq_close' && isAdmin) {
+      return_msg = pq.close();
   } else {
       console.log(`* Unknown command ${commandName}`);
   }

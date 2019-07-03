@@ -28,6 +28,7 @@ class PriorityQueue {
     {
         this.items = [];
         this.formatRe = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/
+        this.closed = false;
     }
 
 
@@ -35,6 +36,11 @@ class PriorityQueue {
     // to the queue as per priority
     enqueue(username, isSubscriber, levelID)
     {
+        if (this.closed) {
+          var msg = 'queue is currently closed, use "!mmq_open" to open (mods and streamer only)';
+          return msg;
+        }
+
         // if no levelID provided
         if (levelID == undefined) {
           var msg = 'no level ID found, usage is "!mmq_add <LEVEL_ID>"';
@@ -110,8 +116,13 @@ class PriorityQueue {
     {
         // look at the next levels in the Queue
         // without removing
-        if (this.isEmpty())
-            return "queue is currently empty";
+        if (this.isEmpty()) {
+            return 'queue is currently empty';
+        }
+
+        if (typeof(num) !== 'number') {
+            return 'please enter a number';
+        }
 
         if (num == undefined) {
           num = 5;
@@ -150,6 +161,16 @@ class PriorityQueue {
       }
       this.items = [];
       return 'queue cleared';
+    }
+
+    open() {
+      this.closed = false;
+      return 'queue is open';
+    }
+
+    close() {
+      this.closed = true;
+      return 'queue is closed';
     }
 
     // isEmpty function
