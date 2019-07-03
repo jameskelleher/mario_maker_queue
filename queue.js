@@ -120,7 +120,7 @@ class PriorityQueue {
             return 'queue is currently empty';
         }
 
-        if (num == undefined) {
+        if (num === undefined) {
           num = 5;
         }
 
