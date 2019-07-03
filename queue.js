@@ -14,6 +14,10 @@ class QElement {
         var msg = `${this.username}: ${this.levelID}`;
         return msg;
     }
+
+    updateLevelID(newLevelID) {
+        this.levelID = newLevelID;
+    }
 }
 
 // PriorityQueue class
@@ -23,6 +27,7 @@ class PriorityQueue {
     constructor()
     {
         this.items = [];
+        this.formatRe = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/
     }
 
 
@@ -30,10 +35,21 @@ class PriorityQueue {
     // to the queue as per priority
     enqueue(username, isSubscriber, levelID)
     {
+        // if no levelID provided
         if (levelID == undefined) {
           var msg = 'no level ID found, usage is "!mmq_add <LEVEL_ID>"';
           return msg;
         }
+
+        // test formatting
+        if (!this.formatRe.test(levelID)) {
+          var msg = `${levelID} not properly formatted, please make sure the level ID has the form XXX-XXX-XXX`;
+          return msg;
+        }
+
+        // coalesce to upper
+        levelID = levelID.toUpperCase();
+
         // creating object from queue element
         var qElement = new QElement(username, isSubscriber, levelID);
         var contain = false;
@@ -44,15 +60,19 @@ class PriorityQueue {
         for (var i = 0; i < this.items.length; i++) {
             var comp = this.items[i];
 
-            // if (comp.username == qElement.username) {
-            //   var msg = `${qElement.username} is already in the queue at position ${i+1}`;
-            //   return msg;
-            // }
+            // update user's levelID if user already in queue
+            if (comp.username == qElement.username) {
+                comp.updateLevelID(qElement.levelID);
+                var msg = `Updated ${comp.username}'s level ID to ${comp.levelID}. You are at position ${i+1}`;
+                return msg
+            }
+
             if (comp.isSubscriber < qElement.isSubscriber) {
                 this.items.splice(i, 0, qElement);
                 contain = true;
                 break;
-            };
+            }
+
             if (comp.isSubscriber == qElement.isSubscriber && comp.time > qElement.time) {
                 // Once the correct location is found it is
                 // enqueued
@@ -108,6 +128,29 @@ class PriorityQueue {
         return msg;
     }
 
+    user_position(username) {
+      if (this.isEmpty()) {
+        return 'queue is currently empty';
+      }
+
+      for (var i = 0; i < this.items.length; i++) {
+        if (this.items[i].username == username) {
+          var msg = `At position ${i+1} - ${this.items[i].toString()}`
+          return msg;
+        }
+      }
+
+      var msg = `${username} not found in queue, use "!mmq_add <LEVEL_ID>" to add`;
+      return msg;
+    }
+
+    clear() {
+      if (this.isEmpty()) {
+        return 'queue is already empty';
+      }
+      this.items = [];
+      return 'queue cleared';
+    }
 
     // isEmpty function
     isEmpty()
@@ -115,6 +158,9 @@ class PriorityQueue {
         // return true if the queue is empty.
         return this.items.length == 0;
     }
+
+
+
 }
 
 module.exports = {

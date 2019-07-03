@@ -6,7 +6,7 @@ const PriorityQueue = require('./queue.js').PriorityQueue;
 const opts = {
   identity: {
     username: 'mmq_bot',
-    password: 'oauth:dyb42icaz2u0jm70ogwcmxpnchbrw1'
+    password: process.env.TWITCH_OAUTH,
   },
   channels: [
     'eidolon_emerson',
@@ -39,21 +39,28 @@ function onMessageHandler (target, context, msg, self) {
   const msgSplit = msg.trim().split(' ');
   const commandName = msgSplit[0];
 
+  var return_msg = undefined;
+
+  const isAdmin = context.mod || context.username === target.substring(1);
+
   // If the command is known, let's execute it
   if (commandName === '!mmq_add') {
       var levelID = msgSplit[1];
-      var msg = pq.enqueue(context.username, context.subscriber, levelID);
-      client.say(target, msg);
-  } else if (commandName === '!mmq_pop') {
-      var num = msgSplit[1];
-      var msg = pq.dequeue();
-      client.say(target, msg);
+      return_msg = pq.enqueue(context.username, context.subscriber, levelID);
+  } else if (commandName === '!mmq_pop' && isAdmin) {
+      return_msg = pq.dequeue();
   } else if (commandName === '!mmq_peek') {
-      var msg = pq.peek();
-      client.say(target, msg);
+      var num = msgSplit[1];
+      return_msg = pq.peek(num);
+  } else if (commandName === '!mmq_pos') {
+      return_msg = pq.user_position(context.username);
+  } else if (commandName == '!mmq_clear' && isAdmin) {
+      return_msg = pq.clear();
   } else {
       console.log(`* Unknown command ${commandName}`);
   }
+
+  if (return_msg) client.say(target, return_msg);
 }
 
 // Function called when the "dice" command is issued
